@@ -22,8 +22,14 @@
   .shead h2{margin:0;font-size:21px;font-weight:800;color:#16203b;letter-spacing:-.01em;}
   .shead .role{font-size:12.5px;color:#7a8296;font-weight:600;margin-top:3px;}
 
-  .note{background:#f6f7fa;border:1px solid #e6e8ef;border-radius:9px;padding:13px 17px;font-size:13px;color:#3a4458;margin-bottom:18px;}
+  .note{background:#f6f7fa;border:1px solid #e6e8ef;border-radius:9px;padding:13px 17px;font-size:13px;color:#3a4458;margin-bottom:16px;}
   .note b{color:#16203b;}
+
+  .hl{background:#eef2fb;border:1px solid #d2ddf2;border-left:4px solid #2b3a67;border-radius:0 10px 10px 0;
+    padding:14px 18px;font-size:13.5px;color:#1f2c4d;margin:0 0 18px;}
+  .hl b{color:#16203b;}
+  .hl .tag{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.08em;color:#fff;background:#2b3a67;
+    padding:3px 10px;border-radius:99px;margin-bottom:8px;text-transform:uppercase;}
 
   .feats{list-style:none;margin:0 0 4px;padding:0;}
   .feats li{font-size:13.8px;color:#3c4459;line-height:1.62;padding-left:17px;position:relative;margin-bottom:10px;}
@@ -60,17 +66,21 @@
   <section>
     <div class="shead">
       <h2>BBSoundEngine</h2>
-      <div class="role">인터랙티브 사운드 미들웨어 · 실제 라이브 적용</div>
+      <div class="role">직접 만든 인터랙티브 사운드 미들웨어 · 실제 라이브 적용</div>
     </div>
 
-    <div class="note">사운드 미들웨어가 없어 <b>개발자와의 커뮤니케이션 비용</b>이 크고 <b>사운드 디자이너의 업무 병목</b>이 심했던 환경에서, <b>AI(Claude Code)를 적극 활용해 직접 미들웨어를 만들어</b> 업무 방식 자체를 혁신했습니다. 개발본부 브리핑 → 본부 차원 승인 → <b>라이브 서비스 적용</b>, 현재 신규 슬롯으로 확대 중.</div>
+    <div class="note">사운드 디자이너인 제가 <b>사운드 미들웨어를 직접 만들어</b>, 회사 환경에 핏하게 설계해 <b>끊김 없는 인터랙티브 음악 연출</b>을 가능하게 했습니다. 미들웨어 부재로 컸던 개발자 커뮤니케이션 비용·업무 병목을 AI(Claude Code)를 적극 활용해 직접 풀어냈고, 개발본부 승인 → <b>라이브 서비스 적용</b> → 현재 신규 슬롯으로 확대 중입니다.</div>
+
+    <div class="hl">
+      <span class="tag">핵심 — 실시간 워크플로</span><br>
+      <b>개발자 빌드를 기다릴 필요가 없습니다.</b> 사운드 담당자가 에디터에서 <b>사운드 리소스와 재생 로직을 직접 교체·적용</b>하면 구동 중인 게임에 <b>실시간으로 반영</b>되고, 인게임 상태(BGM·프리셋·더킹·LUFS/RMS)를 <b>실시간 모니터링</b>합니다. 협업 왕복과 빌드 대기 비용이 사라집니다.
+    </div>
 
     <ul class="feats">
       <li><b>인터랙티브 BGM 레이어 크로스페이드 전환</b> — 같은 곡을 여러 레이어로 쌓아 두고 게임 상태에 따라 크로스페이드. 템포를 유지한 채 끊김 없이 고조·진정.</li>
       <li><b>인텐시티 단계 자동 전환</b> — 액션이 생기면 인텐시티 상승, 무동작이 지속되면 자동 디-에스컬레이션.</li>
       <li><b>자동 더킹</b> — 효과음 재생 시 BGM 게인을 자동으로 낮췄다 복구. 다중 더킹은 가장 강한 것 우선.</li>
       <li><b>이벤트·조건 기반 트리거</b> — “상황 → 사운드” 매핑을 조건 분기·시퀀스·랜덤 변주까지 지정.</li>
-      <li><b>노코드 에디터 + 라이브 싱크</b> — 사운드 담당자가 GUI로 전 설정, 실시간 라우드니스(LUFS/RMS) 미터, 수정 즉시 구동 중 게임에 반영.</li>
       <li><b>인하우스 경량 연동</b> — 외부 미들웨어(Wwise·FMOD) 도입 여건이 안 되는 환경에서, 기존 게임·워크플로에 그대로 임베드.</li>
     </ul>
 
@@ -81,8 +91,10 @@
   <section>
     <div class="shead">
       <h2>Stick It!</h2>
-      <div class="role">혼자 만들어 출시한 모바일 게임 · BGM 작곡 + 효과음(SFX) 제작 + 사운드 시스템 전부 직접</div>
+      <div class="role">혼자 만들어 출시한 Unity 모바일 게임 · 사운드 시스템 전부 직접 구축</div>
     </div>
+
+    <div class="note"><b>Unity로 게임을 직접 기획·제작해 실제 출시</b>했습니다. 그 게임의 <b>사운드 시스템 전체(BGM 작곡·효과음 제작·재생 구조)를 혼자 구축</b>했고, 아래는 그 실제 구현 사항입니다.</div>
 
     <ul class="feats">
       <li><b>속도 반응형 하이컷 + 소재별 랜덤마이즈</b> — 충돌 세기(속도)에 따라 하이컷(로우패스)이 달라짐(약하게=고역 감쇠, 세게=풀레인지). 피치·게인은 소재별 랜덤마이즈, 일부 소재는 여러 음원까지 랜덤마이즈해 매 타격이 다르게 들림.</li>
