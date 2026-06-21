@@ -126,7 +126,50 @@
     <div class="video"><iframe src="https://www.youtube.com/embed/LGJ9mnuxUNg" title="Stick It! 플레이·사운드 영상" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
   </div>
 
-  <div class="closing">두 프로젝트 모두 한 가지를 증명합니다 — 저는 곡을 만드는 데서 그치지 않고, <b>그 소리가 상황에 반응해 ‘살아 움직이게’ 하는 구조까지 직접 만듭니다.</b> <b>BBSoundEngine</b>으로는 게임에서 감명받은 ‘템포를 유지하며 이어지는 인터랙티브 음악’을 실무에 구현했고, <b>Stick It!</b>에서는 충돌·게임 상태에 반응하는 사운드 시스템 전체를 직접 설계했습니다.</div>
+  <div class="proj" id="unreal">
+    <div class="phead">
+      <div class="num">03</div>
+      <div>
+        <h2>언리얼 인터랙티브 사운드 시스템</h2>
+        <div class="role">Unreal Engine 5 · 블루프린트 + 메타사운드로 발자국·음악·HUD를 직접 구축</div>
+      </div>
+    </div>
+
+    <div class="note"><b>“상태는 블루프린트가, 소리는 메타사운드가.”</b> 캐릭터와 맵 영역이 ‘지금 무슨 상황인지’를 <b>숫자 하나로</b> 넘기면, 메타사운드가 그 숫자로 <b>어떤 소리를 어떻게 낼지</b>를 결정합니다. 발자국 랜덤마이즈 · 영역 기반 인터랙티브 음악 · 실시간 HUD를 이 한 가지 패턴으로 엮었습니다.</div>
+
+    <ul class="feats">
+      <li><b>발자국 트리거 — 이동 거리 기반</b> · 매 프레임 ‘직전 발자국에서 보폭(175cm)만큼 멀어졌나’로 한 걸음을 감지 (애니메이션 노티파이 없이).</li>
+      <li><b>재질 판별 — 발밑 LineTrace</b> · 발밑으로 광선을 쏴 밟은 표면의 PhysicalMaterial을 읽고 <b>유리=0 / 콘크리트=1</b>로 번역해 메타사운드로 전달.</li>
+      <li><b>MS_Footstep 메타사운드 — 2겹 랜덤마이즈</b> · 받은 Surface 값으로 Mono Mixer 게인을 제어해 콘크리트/유리 갈래를 선택, 각 갈래에서 <b>Random Get(샘플 랜덤) + Random(피치 랜덤)</b>으로 매 걸음 다르게.</li>
+      <li><b>인터랙티브 음악 — 영역 기반 상태 전환</b> · 맵 트리거 영역(일반전투·보스전투)에 들어가면 BP_MusicDirector가 음악 상태(State)를 바꾸고, DataTable이 각 상태의 표시 정보를 정의.</li>
+      <li><b>실시간 HUD</b> · 화면이 매 프레임 캐릭터·디렉터의 현재 상태를 읽어 <b>지금 밟은 재질</b>(좌하단)과 <b>현재 음악 영역</b>(좌상단)을 동시에 표시.</li>
+    </ul>
+
+    <div class="label">시스템 구조 — 한눈에</div>
+    <pre style="background:#0e1320;color:#cfd6e6;border:1px solid #232a3d;border-radius:10px;padding:16px 18px;font-size:12.5px;line-height:1.6;overflow-x:auto;white-space:pre;font-family:'SFMono-Regular',Consolas,'D2Coding',monospace;margin:6px 0 0;">
+[캐릭터 BP_MusicDemoChar]
+   Tick: 이동거리 ≥ 보폭(175cm) → PlayFootstep()
+      └ 발밑 LineTrace → 밟은 면의 PhysicalMaterial
+           └ 유리=0 / 콘크리트=1   (+ LastFootstepWasGlass 저장)
+                │
+                ▼  SpawnSoundAtLocation(MS_Footstep) + SetFloatParameter("Surface", 0/1)
+[MS_Footstep · 메타사운드]
+   Surface ─▶ Mono Mixer 게인으로 콘크리트/유리 갈래 선택
+   각 갈래 :  Random Get(샘플 랜덤) → Wave Player ◀ Random(피치 랜덤)
+                ▼  🔊 매 걸음 다른 발자국
+
+[맵 영역 트리거] ─▶ [BP_MusicDirector] MusicState ─▶ [DT_MusicStates] 상태별 표시 정의
+                                       │
+[WBP_MusicHUD] ◀─ 매 프레임 읽기 ─────┘
+   좌상단 : 현재 음악 영역  (예: 일반전투 / 웨이브1)
+   좌하단 : 지금 밟은 재질  (일반 / 유리 발자국소리)
+    </pre>
+
+    <div class="label">전체 노드 구조 — 자세히</div>
+    <p style="margin:6px 0 0;"><a href="./unreal-bgm.html" style="display:inline-block;color:#2b3a67;font-weight:700;font-size:13.5px;text-decoration:none;border:1px solid #2b3a67;border-radius:8px;padding:9px 16px;">📄 블루프린트 · 메타사운드 노드 전체 보기 — 스크린샷 8장 + 설명 →</a></p>
+  </div>
+
+  <div class="closing">세 프로젝트 모두 한 가지를 증명합니다 — 저는 곡을 만드는 데서 그치지 않고, <b>그 소리가 상황에 반응해 ‘살아 움직이게’ 하는 구조까지 직접 만듭니다.</b> <b>BBSoundEngine</b>으로는 실무에 인터랙티브 음악 엔진을, <b>Stick It!</b>에서는 게임 사운드 시스템 전체를, <b>언리얼</b>에서는 블루프린트+메타사운드로 발자국·음악·HUD가 맞물린 반응형 사운드 시스템을 직접 설계했습니다.</div>
   <div class="foot">서보빈 · Game Music Composer · Sound Designer · Developer · bobinseo.com</div>
 
 </div>
