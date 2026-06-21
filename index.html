@@ -48,7 +48,7 @@
 
   .shots{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:4px;}
   .shots figure{margin:0;}
-  .shots img{width:100%;border-radius:9px;border:1px solid #d9dce4;display:block;box-shadow:0 3px 12px rgba(20,32,59,.09);}
+  .shots img{width:100%;border-radius:9px;border:1px solid #d9dce4;display:block;box-shadow:0 3px 12px rgba(20,32,59,.09);cursor:zoom-in;}
   .shots figcaption{font-size:11.5px;color:#8a90a0;text-align:center;margin-top:8px;}
 
   .closing{background:#f7f8fc;border-left:4px solid #2b3a67;border-radius:0 11px 11px 0;
@@ -57,6 +57,21 @@
   .foot{margin-top:22px;padding-top:16px;border-top:1px solid #eceef2;font-size:12px;color:#9aa0ad;}
 
   @media (max-width:680px){.paper{padding:30px 22px;}.shots{grid-template-columns:1fr;}}
+
+  /* #unreal 노드 — 이미지 옆 텍스트 가로배치 + 캡션 키움 (이 섹션만 스코프, stickit .shots 보존) */
+  #unreal .shots{grid-template-columns:1fr;gap:16px;}
+  #unreal .shots figure{display:flex;gap:18px;align-items:center;background:#f6f7fa;border:1px solid #e6e8ef;border-radius:11px;padding:14px 16px;margin:0;}
+  #unreal .shots img{width:300px;flex:0 0 300px;margin:0;}
+  #unreal .shots figcaption{font-size:14.5px;line-height:1.62;color:#3a4458;text-align:left;margin-top:0;}
+  #unreal .shots figcaption b{color:#16203b;}
+  @media (max-width:680px){#unreal .shots figure{flex-direction:column;align-items:stretch;}#unreal .shots img{width:100%;flex:none;}}
+
+  /* 라이트박스 (줌+드래그) */
+  .lb{position:fixed;inset:0;z-index:100;background:rgba(8,10,20,.9);display:none;align-items:center;justify-content:center;padding:4vmin;}
+  .lb.open{display:flex;}
+  .lb .lb-box{width:100%;height:92vh;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .lb .lb-box img{max-width:100%;max-height:100%;border-radius:10px;touch-action:none;cursor:zoom-in;}
+  .lb .x{position:absolute;top:14px;right:22px;background:none;border:0;color:#fff;font-size:34px;line-height:1;cursor:pointer;padding:6px;}
 </style>
 </head>
 <body>
@@ -180,5 +195,55 @@
 
 </div>
 </div>
+
+<div class="lb" id="lb"><button class="x" aria-label="닫기">×</button><div class="lb-box"></div></div>
+<script>
+/* 라이트박스 — 모든 .shots 이미지 클릭 시 줌(휠)+드래그(팬). 단일 스레드 브라우저, 공유 상태 없음 */
+(function(){
+  const lb = document.getElementById('lb');
+  const box = lb.querySelector('.lb-box');
+  function close(){ box.innerHTML = ''; lb.classList.remove('open'); document.body.style.overflow = ''; }
+  function open(src){
+    box.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = src;
+    box.appendChild(img);
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    attachZoomPan(img);
+  }
+  /* scale이 줌·팬 유효성의 단일 권위. img 제거(close) 시 리스너 GC, pointer capture 자동 해제 */
+  function attachZoomPan(img){
+    let scale = 1, tx = 0, ty = 0, dragging = false, ox = 0, oy = 0;
+    const apply = () => { img.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`; };
+    img.style.transformOrigin = 'center center';
+    img.addEventListener('wheel', e => {
+      e.preventDefault();
+      scale = Math.min(6, Math.max(1, scale * (e.deltaY < 0 ? 1.18 : 1 / 1.18)));
+      if (scale <= 1) { scale = 1; tx = 0; ty = 0; img.style.cursor = 'zoom-in'; }
+      else img.style.cursor = 'grab';
+      apply();
+    }, { passive: false });
+    img.addEventListener('pointerdown', e => {
+      if (scale <= 1) return;
+      dragging = true; ox = e.clientX - tx; oy = e.clientY - ty;
+      img.setPointerCapture(e.pointerId); img.style.cursor = 'grabbing';
+    });
+    img.addEventListener('pointermove', e => {
+      if (!dragging) return;
+      tx = e.clientX - ox; ty = e.clientY - oy; apply();
+    });
+    const end = () => { if (dragging) { dragging = false; img.style.cursor = 'grab'; } };
+    img.addEventListener('pointerup', end);
+    img.addEventListener('pointercancel', end);
+  }
+  document.addEventListener('click', e => {
+    const img = e.target.closest('.shots img');
+    if (img) { open(img.src); return; }
+    if (lb.classList.contains('open') && (!box.contains(e.target) || e.target.classList.contains('x'))) close();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+})();
+</script>
 </body>
 </html>
