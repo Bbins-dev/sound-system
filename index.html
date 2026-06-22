@@ -153,7 +153,7 @@
       <figure><img src="assets/imgs/MS_Footstep.png" alt="MS_Footstep 메타사운드"><figcaption><b>MS_Footstep</b>(메타사운드) — Random Get(샘플 랜덤) + Random(피치 랜덤), Surface 값으로 Mono Mixer 게인을 분기해 유리/콘크리트 선택.</figcaption></figure>
     </div>
 
-    <div class="hl"><span class="tag">설계 포인트</span> <b>위치(구역)를 음악에 직접 묶지 않고 State 정수로 중개</b>(느슨한 결합)하고, <b>재생(ApplyAudio·이벤트)과 음량(Tick·매 프레임)을 단일 권위로 분리</b>해 이중 쓰기 버그를 차단했습니다. 블루프린트 로직은 AI 협업으로 구현했고, 구조·설계 의도는 직접 이해·설명 가능합니다.</div>
+    <div class="hl"><span class="tag">설계 포인트</span> <b>위치(구역)를 음악에 직접 묶지 않고 State 정수로 중개</b>하고, <b>재생(ApplyAudio·이벤트)과 음량(Tick·매 프레임)을 단일 권위로 분리</b>해 이중 쓰기 버그를 차단했습니다. 블루프린트 로직은 AI 협업으로 구현했고, 구조·설계 의도는 직접 이해·설명 가능합니다.</div>
   </div>
 
   <hr class="secdiv">
@@ -212,15 +212,19 @@
     let scale = 1, tx = 0, ty = 0, dragging = false, ox = 0, oy = 0;
     const apply = () => { img.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`; };
     img.style.transformOrigin = 'center center';
+    img.draggable = false;                                  // 좌클릭 드래그 팬을 막던 브라우저 native 이미지 드래그 차단
+    img.addEventListener('dragstart', e => e.preventDefault());
     img.addEventListener('wheel', e => {
       e.preventDefault();
-      scale = Math.min(6, Math.max(1, scale * (e.deltaY < 0 ? 1.18 : 1 / 1.18)));
+      /* 줌 감도: deltaY 크기에 비례한 완만한 배율(휠 1노치 deltaY≈100 → 약 ±10%). 기존 고정 ±18% 대비 완화 + 트랙패드 과확대 방지 */
+      scale = Math.min(6, Math.max(1, scale * Math.exp(-e.deltaY * 0.001)));
       if (scale <= 1) { scale = 1; tx = 0; ty = 0; img.style.cursor = 'zoom-in'; }
       else img.style.cursor = 'grab';
       apply();
     }, { passive: false });
     img.addEventListener('pointerdown', e => {
       if (scale <= 1) return;
+      e.preventDefault();                                    // 좌클릭 팬 시 텍스트/이미지 선택 드래그 방지
       dragging = true; ox = e.clientX - tx; oy = e.clientY - ty;
       img.setPointerCapture(e.pointerId); img.style.cursor = 'grabbing';
     });
